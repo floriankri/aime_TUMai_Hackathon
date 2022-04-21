@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Iterable, Optional
 from graphviz import Digraph
 from .hpo import HPOEntry, HPO
 
@@ -30,7 +30,7 @@ def _graph_to_depth(g: Digraph, node: HPOEntry, depth: int):
         g.edge(safe_id(node.id), safe_id(child.id))
 
 
-def make_graph_2(hpo: HPO, labevents: list[str], diagnoses: list[str],
+def make_graph_2(hpo: HPO, labevents: Iterable[str], diagnoses: Iterable[str],
                  labevent_color: str = "green", diagnoses_color: str = "yellow") -> Digraph:
     'generates a graph displaying the labevents and diagnoses'
     g = Digraph()
