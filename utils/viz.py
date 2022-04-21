@@ -1,14 +1,17 @@
 from graphviz import Digraph
-from .hpo import HPO, HPOEntry
+from .hpo import HPOEntry
 
 
 def make_graph_to_depth(node: HPOEntry, depth: int) -> Digraph:
+    'returns a graphviz graph with all children of `node` up to a depth of `depth`'
     g = Digraph()
     _graph_to_depth(g, node, depth)
     return g
 
 
-def safe_id(id: str): return id.replace(':', '_')
+def safe_id(id: str):
+    'replaces `:` with `_` since graphviz ids cannot contain `:`'
+    return id.replace(':', '_')
 
 
 def _add_node(g: Digraph, entry: HPOEntry):
@@ -17,6 +20,7 @@ def _add_node(g: Digraph, entry: HPOEntry):
 
 
 def _graph_to_depth(g: Digraph, node: HPOEntry, depth: int):
+    'adds `node` and all children of `node` up to a depth of `depth` to `g`'
     _add_node(g, node)
     if depth <= 0:
         return
