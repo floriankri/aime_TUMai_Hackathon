@@ -22,22 +22,31 @@ class HPOEntry:
     def __repr__(self) -> str:
         return f'<Entry {self.id} "{self.name}">'
 
+    def add_all_parents(self, s: set[str]):
+        s.add(self.id)
+        for parent in self._parents:
+            parent.add_all_parents(s)
 
-entry_with_parent_ids = tuple[HPOEntry, list[str]]
-'type alias: (entry, parent_ids)'
+
+augmented_entry = tuple[HPOEntry, list[str], list[str]]
+'type alias: (entry, parent_ids, alt_ids)'
 
 
 class HPO:
     'contains the human phenotype ontology'
 
-    def __init__(self, entries: list[entry_with_parent_ids]):
+    def __init__(self, entries: list[augmented_entry]):
         '''
         entries: all entries found in the .obo file along with their parent_ids.
         They will be connected 
         '''
         self.entries_by_id = {e[0].id: e[0] for e in entries}
+        self.proper_id = {e[0].id: e[0].id for e in entries}
+        'maps alt_id to the correct id'
         roots = []  # collect all the entries without a parent. There should be exactly one: the root
-        for entry, parent_ids in entries:
+        for entry, parent_ids, alt_ids in entries:
+            for alt_id in alt_ids:
+                self.proper_id[alt_id] = entry.id
             if len(parent_ids) == 0:
                 roots.append(entry)
             for parent_id in parent_ids:

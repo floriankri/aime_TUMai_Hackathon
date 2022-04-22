@@ -1,7 +1,7 @@
 
 from io import TextIOWrapper
 from typing import Optional
-from .hpo import HPO, HPOEntry, entry_with_parent_ids
+from .hpo import HPO, HPOEntry, augmented_entry
 
 # file format spec: http://owlcollab.github.io/oboformat/doc/GO.format.obo-1_2.html#S.1.5
 
@@ -62,7 +62,7 @@ def get_next_line_from_file(f: TextIOWrapper) -> Optional[str]:
         return line
 
 
-def build_entry_from_tags(tags: dict[str, list[str]]) -> Optional[entry_with_parent_ids]:
+def build_entry_from_tags(tags: dict[str, list[str]]) -> Optional[augmented_entry]:
     '''given all tags of one entry returns an `HPOEntry` and a list of all parent_ids.
     for entries marked with `is_obsolete`, returns `None`
     '''
@@ -75,11 +75,12 @@ def build_entry_from_tags(tags: dict[str, list[str]]) -> Optional[entry_with_par
     if 'is_obsolete' in tags:
         # is obsolete -> do not add
         return None
+    alt_ids = tags.pop('alt_id', [])
     entry = HPOEntry(id, name, tags)
-    return entry, parent_ids
+    return entry, parent_ids, alt_ids
 
 
-def get_entries_from_file(f: TextIOWrapper) -> list[entry_with_parent_ids]:
+def get_entries_from_file(f: TextIOWrapper) -> list[augmented_entry]:
     # parse header
     while True:
         line = get_next_line_from_file(f)
@@ -89,7 +90,7 @@ def get_entries_from_file(f: TextIOWrapper) -> list[entry_with_parent_ids]:
             break
 
     # list of entries to be connected later
-    entries: list[entry_with_parent_ids] = []
+    entries: list[augmented_entry] = []
     while True:
         assert line == '[Term]', "hp.obo contains only [Term] stanzas"
 
