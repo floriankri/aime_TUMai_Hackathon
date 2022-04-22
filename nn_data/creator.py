@@ -44,4 +44,4 @@ class DatasetCreator:
         return [self.one_hot_encoding(subject[0]) for subject in self._subjects]
 
     def target_data_one_hot(self) -> list[list[int]]:
-        return [self.one_hot_encoding(subject[0]) for subject in self._subjects]
+        return [self.one_hot_encoding(subject[1]) for subject in self._subjects]
