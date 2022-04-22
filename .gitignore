@@ -1,5 +1,6 @@
 __pycache__/
 .vscode/
+.ipynb_checkpoints/
 
 # stuff that we download in setup.ipynb
 data/hp.obo
