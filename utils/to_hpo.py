@@ -106,7 +106,8 @@ def add_hpo_information(
 
         selected_hpo_features.append(";".join(selected))
         not_selected_hpo_features.append(";".join(not_selected))
-        unknown_hpo_features.append(";".join(unassigned.values()))
+        unknown = [e for e in unassigned.values() if (e not in selected) and (e not in not_selected)]
+        unknown_hpo_features.append(";".join(unknown))
 
     # put new columns into dataframe
     labevents_df['selected_hpo_features'] = selected_hpo_features
