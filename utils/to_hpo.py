@@ -12,7 +12,7 @@ NEG = ['neg', '0-']
 POS = ['pos', '1+', '2+', '3+']
 
 
-def is_float(text: str) -> bool:
+def is_number(text: str) -> bool:
     try:
         float(text)
         return True
@@ -78,7 +78,7 @@ def add_hpo_information(
                     print(line)
                     return
                 value: str = line.value.lower()
-                if value == '' or is_float(value):
+                if value == '' or is_number(value):
                     # quantitative result
                     if line.flag == '':
                         # normal
@@ -108,10 +108,14 @@ def add_hpo_information(
         not_selected_hpo_features.append(";".join(not_selected))
         unknown_hpo_features.append(";".join(unassigned.values()))
 
+    # put new columns into dataframe
     labevents_df['selected_hpo_features'] = selected_hpo_features
     labevents_df['not_selected_hpo_features'] = not_selected_hpo_features
     labevents_df['unknown_hpo_features'] = unknown_hpo_features
+    # save dataframe
     labevents_df.to_csv(labevents_hpo_path)
+
+    # print statistics
     print(f'missing loinc id for {len(missing_loinc)} items')
     print(f'missing annoation for {len(missing_annotation)} loinc ids')
     print(f'{unknown_flags=}')
