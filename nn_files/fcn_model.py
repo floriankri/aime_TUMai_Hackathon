@@ -9,6 +9,7 @@ class FCNModel(nn.Module):
         input_size: int, hidden_size: int, output_size: int,
         enlarging_factor: float,
         autoencoder: Optional[Autoencoder] = None,
+        dropOutRatio: float = 0,
     ):
         super().__init__()
 
@@ -22,8 +23,10 @@ class FCNModel(nn.Module):
 
             l1 = nn.Linear(self.input_size, self.hidden_size)
             nn.init.xavier_uniform_(l1.weight)
+            d1 = nn.Dropout(p=dropOutRatio)
             l2 = nn.Linear(self.hidden_size, self.hidden_size)
             nn.init.xavier_uniform_(l2.weight)
+            d2 = nn.Dropout(p=dropOutRatio)
             l3 = nn.Linear(self.hidden_size, self.output_size)
             nn.init.xavier_uniform_(l3.weight)
 
@@ -31,8 +34,10 @@ class FCNModel(nn.Module):
             self.NN = nn.Sequential(
                 l1,
                 nn.Tanh(),
+                d1,
                 l2,
                 nn.Tanh(),
+                d2,
                 l3,
                 nn.Sigmoid()
             )
@@ -42,8 +47,10 @@ class FCNModel(nn.Module):
 
             l1 = nn.Linear(self.input_size, self.hidden_size)
             nn.init.xavier_uniform_(l1.weight)
+            d1 = nn.Dropout(p=dropOutRatio)
             l2 = nn.Linear(self.hidden_size, self.hidden_size)
             nn.init.xavier_uniform_(l2.weight)
+            d2 = nn.Dropout(p=dropOutRatio)
             l3 = nn.Linear(self.hidden_size, self.output_size)
             nn.init.xavier_uniform_(l3.weight)
 
@@ -51,8 +58,10 @@ class FCNModel(nn.Module):
             self.NN = nn.Sequential(
                 l1,
                 nn.Tanh(),
+                d1,
                 l2,
                 nn.Tanh(),
+                d2,
                 l3,
                 nn.Sigmoid()
             )
