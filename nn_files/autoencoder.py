@@ -8,7 +8,11 @@ import torch.nn as nn
 
 
 class Autoencoder(nn.Module):
-    
+    """
+    This class forms the architecture of the autoencoder. The latent size which is an input
+    of the init function describes the dimension of the innermost layer.
+    After Training the output of this first encoder part will serve as input for the following FCN
+    """
     def __init__(self, input_size, hidden_size, latent_size):
         super().__init__()
         
@@ -20,7 +24,7 @@ class Autoencoder(nn.Module):
         self.latent_size = latent_size
         self.output_size = input_size
 
-        # architecture of encoder
+        # architecture and initialization of encoder
         l1 = nn.Linear(self.input_size, self.hidden_size)
         nn.init.xavier_uniform_(l1.weight)
         l2 = nn.Linear(self.hidden_size, self.latent_size)
@@ -32,7 +36,7 @@ class Autoencoder(nn.Module):
             l2
         )
         
-        #architecture of decoder
+        #architecture and initialization of decoder
         l3 = nn.Linear(self.latent_size, self.hidden_size)
         nn.init.xavier_uniform_(l1.weight)
         l4 = nn.Linear(self.hidden_size, self.output_size)
@@ -45,6 +49,9 @@ class Autoencoder(nn.Module):
         )
         
     def return_encoder(self):
+        """
+        Returns only the encoder part for further use
+        """
         return self.encoder
         
     
