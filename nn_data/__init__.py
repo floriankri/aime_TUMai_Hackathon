@@ -1,4 +1,4 @@
-from .loader import load_data
-from .creator import DatasetCreator
+from .loader import LoadedData
+from .creator import HPODatasetCreator
 
-__all__ = ['load_data', 'DatasetCreator']
+__all__ = ['LoadedData', 'HPODatasetCreator']
