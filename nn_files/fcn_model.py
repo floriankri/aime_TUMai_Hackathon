@@ -1,15 +1,15 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Apr 23 15:07:25 2022
-
-@author: robin
-"""
+from typing import Optional
 import torch.nn as nn
-from .Autoencoder_setup import Autoencoder
+from .autoencoder import Autoencoder
 
 
-class NN(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, enlarging_factor, autoencoder: Autoencoder = None):
+class FCNModel(nn.Module):
+    def __init__(
+        self,
+        input_size: int, hidden_size: int, output_size: int,
+        enlarging_factor: float,
+        autoencoder: Optional[Autoencoder] = None,
+    ):
         super().__init__()
 
         self.NN = nn.Identity()
@@ -58,9 +58,7 @@ class NN(nn.Module):
             )
 
     def forward(self, x):
-
         if self.encoder:
             x = self.encoder(x)
-
         x = self.NN(x)
         return x

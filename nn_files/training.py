@@ -1,17 +1,14 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Apr 23 13:30:32 2022
-
-@author: robin
-"""
-
+from typing import Callable, Optional
 import torch
 import torch.nn as nn
 import numpy as np
 from nn_data.creator import DatasetCreator
 
 
-def split_dataset(batch_size: int, dataset):
+def split_dataset(
+    batch_size: int,
+    dataset: torch.utils.data.dataset.TensorDataset,
+):
     # split dataset into training, validation and test
     train_size = int(len(dataset)*0.7)
     val_size = int(len(dataset)*0.2)
@@ -29,12 +26,17 @@ def split_dataset(batch_size: int, dataset):
     return train_loader, val_loader, test_loader
 
 
-def training(model: nn.Module, optimizer: torch.optim.Optimizer,
-             loss_func,
-             learning_rate: int, num_epochs: int, batch_size: int,
-             device: torch.device, dataset_split: tuple,
-             real_effect=None, log_rhythm: int = None, calc_accuracy=None
-             ):
+def training(
+    model: nn.Module,
+    device: torch.device,
+    dataset_split: tuple,
+    loss_func: nn.Module,
+    optimizer: torch.optim.Optimizer,
+    num_epochs: int,
+    real_effect: Optional[Callable] = None,
+    log_rhythm: Optional[int] = None,
+    calc_accuracy: Optional[Callable] = None,
+):
 
     train_loader, val_loader, _ = dataset_split
 
@@ -116,13 +118,19 @@ def training(model: nn.Module, optimizer: torch.optim.Optimizer,
             print("\n")
 
 
-def test(model: nn.Module, loss_func,
-         device: torch.device, dataset_split: tuple,
-         target_data_creator: DatasetCreator,
-         real_effect=None, calc_accuracy=None,
-         ):
-    test_acc = []
+def test(
+    model: nn.Module,
+    device: torch.device,
+    dataset_split: tuple,
+    data_creator: DatasetCreator,
+    real_effect: Optional[Callable] = None,
+    calc_accuracy: Optional[Callable] = None,
+    sort_output_by_confidence: bool = False
+):
     _, _, test_loader = dataset_split
+
+    outputs, targets = [], []
+    test_acc = []
     for inputs, targets in test_loader:
         inputs, targets = inputs.to(device), targets.to(device)
 
@@ -130,16 +138,19 @@ def test(model: nn.Module, loss_func,
 
         if calc_accuracy:
             test_acc.append(calc_accuracy(
-            outputs.cpu().detach().numpy(), targets.cpu().detach().numpy()))
-        else:
-            test_acc.append(0.0)
+                outputs.cpu().detach().numpy(), targets.cpu().detach().numpy()))
         if real_effect:
             real_effect(outputs, targets)
 
-    test_acc = np.mean(test_acc)
+    if calc_accuracy:
+        test_acc = np.mean(test_acc)
+        print(f'Test Accuracy: {test_acc:.3f}')
 
-    print(f'Test Accuracy: {test_acc:.3f}')
-
-    for i in range(len(outputs[0])):
+    combined = list(data_creator.combine(outputs[0], targets[0]))
+    if sort_output_by_confidence:
+        combined.sort(key=lambda t: -t[1])  # sort by output confidence
+    print(
+        f'{"id":15s} output   target')
+    for id, output, target in combined:
         print(
-            f'{target_data_creator.feature_list[i]}\t{outputs[0,i]:.2f}\t{"X" if targets[0,i] > 0 else " "}')
+            f'{id:15s} {output:.2f}     {"X" if target else " "}')

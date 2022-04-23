@@ -1,12 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Apr 23 11:29:58 2022
-
-@author: robin
-"""
-
-from .Autoencoder_setup import Autoencoder
+from .autoencoder import Autoencoder
 from .training import training, split_dataset, test
-from .NeuralNet import NN
+from .fcn_model import FCNModel
 
-__all__ = ['Autoencoder', 'training', 'NN', 'split_dataset', 'test']
+__all__ = ['Autoencoder', 'training', 'FCNModel', 'split_dataset', 'test']

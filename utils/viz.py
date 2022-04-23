@@ -38,16 +38,16 @@ def make_graph_2(hpo: HPO, labevents: Iterable[str], diagnoses: Iterable[str],
 
     def _add_upwards(node: HPOEntry, color: Optional[str] = None):
         'adds `node` and all of its parents (if they are not in `e`)'
-        assert node.id not in e
         if color:
             _add_node(g, node, color)
         else:
             _add_node(g, node)
+        if node.id not in e:
+            for parent in node._parents:
+                if parent.id not in e:
+                    _add_upwards(parent)
+                g.edge(safe_id(parent.id), safe_id(node.id))
         e.add(node.id)
-        for parent in node._parents:
-            if parent.id not in e:
-                _add_upwards(parent)
-            g.edge(safe_id(parent.id), safe_id(node.id))
 
     for id in labevents:
         _add_upwards(hpo.entries_by_id[id], labevent_color)

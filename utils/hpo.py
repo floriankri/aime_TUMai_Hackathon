@@ -23,8 +23,8 @@ class HPOEntry:
         return f'<Entry {self.id} "{self.name}">'
 
     def add_all_parents(self, s: set[str]):
-        s.add(self.id)
         for parent in self._parents:
+            s.add(parent.id)
             parent.add_all_parents(s)
 
 
