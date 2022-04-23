@@ -8,3 +8,4 @@ data/loinc2hpo-annotations.tsv
 data/OUT_LABEVENTS_HPO.csv
 data/D_LABITEMS.csv
 data/LABEVENTS.csv
+data/semiautomatic_ICD-pheno.tsv
