@@ -16,18 +16,18 @@ def _add_upwards_to_set(hpo: HPO, features: Iterable[str], s: set[str]):
 class DatasetCreator:
     def __init__(self, data: LoadedData):
         self.hpo = data.hpo
-        self._subjects: list[set[str]] = []
+        self._subjects: dict[int, set[str]] = {}
         self.feature_list: list[str]
         'for each subject a tuple (labevents, diagnoses)'
 
     def compute_feature_list(self):
         all_present_features: set[str] = set()
-        for features in self._subjects:
+        for features in self._subjects.values():
             all_present_features.update(features)
         self.feature_list = [e for e in all_present_features]
 
     def data(self) -> list[list[int]]:
-        return [_one_hot_encoding(self.feature_list, features) for features in self._subjects]
+        return [_one_hot_encoding(self.feature_list, features) for features in self._subjects.values()]
 
     def combine(self, outputs: list[int], targets: list[int]):
         assert len(self.feature_list) == len(outputs) == len(targets)
@@ -47,7 +47,7 @@ class HPODatasetCreator(DatasetCreator):
         '''
         super().__init__(data)
 
-        for subject in data.subjects.values():
+        for subject_id, subject in data.subjects.items():
             if mode == 'labevents':
                 activated_nodes: set[str] = subject.labevents_hpo.copy()
             else:
@@ -61,7 +61,7 @@ class HPODatasetCreator(DatasetCreator):
             if enable_self_nodes:
                 features.update(activated_nodes)
 
-            self._subjects.append(features)
+            self._subjects[subject_id] = features
 
         self.compute_feature_list()
 
@@ -73,10 +73,10 @@ class ICDDatasetCreator(DatasetCreator):
         '''
         super().__init__(data)
 
-        for subject in data.subjects.values():
+        for subject_id, subject in data.subjects.items():
             features: set[str] = subject.diagnoses_icd.copy()
             if batch:
                 features = {e[:3] for e in features}
-            self._subjects.append(features)
+            self._subjects[subject_id] = features
 
         self.compute_feature_list()

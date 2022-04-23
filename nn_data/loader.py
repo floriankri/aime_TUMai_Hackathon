@@ -15,15 +15,16 @@ class Subject:
 
 
 class LoadedData:
+    '''
+    Loads the Human Phenotype Ontology, as well as the annotated labevents and diagnoses files.
+    Groups the labevents and diagnoses data by subject id.
+    '''
+
     def __init__(self, hpo_path: str, labevents_hpo_path: str, diagnoses_hpo_path: str,
                  labevents_hpo_column_name: str = 'selected_hpo_features',
                  diagnoses_hpo_column_name: str = 'hpo_features',
                  diagnoses_icd_column_name: str = 'icd9_code',
                  ):
-        '''
-        Loads the Human Phenotype Ontology, as well as the annotated labevents and diagnoses files.
-        Groups the labevents and diagnoses data by subject id.
-        '''
         self.hpo = utils.read_hpo_from_obo(hpo_path)
         labevents_df = pd.read_csv(labevents_hpo_path).fillna('')
         diagnoses_df = pd.read_csv(diagnoses_hpo_path).fillna('')
