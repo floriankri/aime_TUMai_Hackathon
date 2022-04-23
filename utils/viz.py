@@ -1,20 +1,16 @@
 from typing import Iterable, Optional
 from graphviz import Digraph
 from .hpo import HPOEntry, HPO
-
-LINE_COLOR = '#065CED'
-LABEVENTS_COLOR = '#DEEAFF'
-DIAGNOSES_COLOR = '#3580FF'
-DEFAULT_COLOR = '#D9D9D9'
+from .design import *
 
 
 def _graph() -> Digraph:
     return Digraph(
-        graph_attr={'fontname': 'DM Sans', },
-        node_attr={'fontname': 'DM Sans', 'shape': 'box',
+        graph_attr={'fontname': FONT, },
+        node_attr={'fontname': FONT, 'shape': 'box',
                    'style': 'filled,rounded',
                    'penwidth': '0.0'},
-        edge_attr={'color': LINE_COLOR},
+        edge_attr={'color': INTENSE_BLUE},
     )
 
 
@@ -30,7 +26,7 @@ def safe_id(id: str):
     return id.replace(':', '_')
 
 
-def _add_node(g: Digraph, entry: HPOEntry, color: str = DEFAULT_COLOR):
+def _add_node(g: Digraph, entry: HPOEntry, color: str = BASIC_GREY):
     g.node(safe_id(entry.id),
            f'<{entry.id}<br/><FONT POINT-SIZE="8">{entry.name}</FONT>>', fillcolor=color)
 
@@ -64,7 +60,7 @@ def make_graph_2(hpo: HPO, labevents: Iterable[str], diagnoses: Iterable[str]) -
         e.add(node.id)
 
     for id in labevents:
-        _add_upwards(hpo.entries_by_id[id], LABEVENTS_COLOR)
+        _add_upwards(hpo.entries_by_id[id], LIGHT_BLUE)
     for id in diagnoses:
-        _add_upwards(hpo.entries_by_id[id], DIAGNOSES_COLOR)
+        _add_upwards(hpo.entries_by_id[id], BASIC_BLUE)
     return g

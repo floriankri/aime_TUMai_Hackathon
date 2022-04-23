@@ -3,6 +3,8 @@ import torch
 import torch.nn as nn
 import numpy as np
 from nn_data.creator import DatasetCreator
+from .plots import plot_loss_accuracy, plot_test_output
+import tqdm
 
 
 def split_dataset(
@@ -34,20 +36,18 @@ def training(
     optimizer: torch.optim.Optimizer,
     num_epochs: int,
     real_effect: Optional[Callable] = None,
-    log_rhythm: Optional[int] = None,
     calc_accuracy: Optional[Callable] = None,
 ):
-
     train_loader, val_loader, _ = dataset_split
 
     val_loss_history = []
-    for epoch in range(num_epochs):
-        print(f'[Epoch {epoch+1}/{num_epochs}]')
-
-        train_loss_history = []
-        train_acc_history = []
-
-        for i, (inputs, targets) in enumerate(train_loader, 1):
+    val_acc_history = []
+    train_loss_history = []
+    train_acc_history = []
+    for _ in tqdm.tqdm(range(num_epochs)):
+        train_loss_epoch = []
+        train_acc_epoch = []
+        for inputs, targets in train_loader:
             inputs, targets = inputs.to(device), targets.to(device)
 
             optimizer.zero_grad()
@@ -56,66 +56,35 @@ def training(
             loss.backward()
             optimizer.step()
 
-            # Loss output after log_rhythm of iterations
-            train_loss_history.append(loss.cpu().detach().numpy())
+            train_loss_epoch.append(loss.cpu().detach().numpy())
             if calc_accuracy:
-                train_acc_history.append(calc_accuracy(
+                train_acc_epoch.append(calc_accuracy(
                     outputs.cpu().detach().numpy(), targets.cpu().detach().numpy()))
-            else:
-                train_acc_history.append(0.0)
-
-            if log_rhythm:
-                if i % log_rhythm == 0:
-                    last_log_rhythm_losses = train_loss_history[-log_rhythm:]
-                    train_loss = np.mean(last_log_rhythm_losses)
-
-                    # train_acc_history.flatten()
-                    last_log_rhythm_acc = train_acc_history[-log_rhythm:]
-                    train_acc = np.mean(last_log_rhythm_acc)
-
-                    print(
-                        f'[Iteration {i}]\tTRAIN      loss/acc: {train_loss:.3f}\t{train_acc:.3f}')
-
-            # Acc computation during after log_rhythm of iterations
-
-        # Loss and acc output after an epoch
-        train_loss = np.mean(train_loss_history)
-        if calc_accuracy:
-            train_acc = np.mean(train_acc_history)
-        else:
-            train_acc = 0.0
-        print(
-            f'for this epoch:\tTRAIN      loss/acc: {train_loss:.3f}\t{train_acc:.3f}')
 
         # Validation after an epoch
-        val_losses = []
-        val_accs = []
         model.eval()
+        val_loss_epoch = []
+        val_acc_epoch = []
         for inputs, targets in val_loader:
             inputs, targets = inputs.to(device), targets.to(device)
 
             outputs = model(inputs)
             loss = loss_func(outputs, targets)
-            val_losses.append(loss.detach().cpu().numpy())
+            val_loss_epoch.append(loss.detach().cpu().numpy())
             if calc_accuracy:
-                val_accs.append(calc_accuracy(
+                val_acc_epoch.append(calc_accuracy(
                     outputs.cpu().detach().numpy(), targets.cpu().detach().numpy()))
 
-        # Training step after an epoch
-        model.train()
-
-        val_loss = np.mean(val_losses)
+        train_loss_history.append(np.mean(train_loss_epoch))
+        val_loss_history.append(np.mean(val_loss_epoch))
         if calc_accuracy:
-            val_acc = np.mean(val_accs)
-        else:
-            val_acc = 0.0
+            train_acc_history.append(np.mean(train_acc_epoch))
+            val_acc_history.append(np.mean(val_acc_epoch))
 
-        # Output of Validation loss
-        val_loss_history.append(val_loss)
-        print(f'\t\tVALIDATION loss/acc: {val_loss:.3f}\t{val_acc:.3f}')
-        if real_effect:
-            real_effect(outputs, targets)
-            print("\n")
+        # put model back into training mode
+        model.train()
+    plot_loss_accuracy(train_loss_history, val_loss_history,
+                       train_acc_history, val_acc_history)
 
 
 def test(
@@ -136,9 +105,10 @@ def test(
 
         outputs = model(inputs)
 
+        outputs, targets = outputs.cpu().detach().numpy(), targets.cpu().detach().numpy()
+
         if calc_accuracy:
-            test_acc.append(calc_accuracy(
-                outputs.cpu().detach().numpy(), targets.cpu().detach().numpy()))
+            test_acc.append(calc_accuracy(outputs, targets))
         if real_effect:
             real_effect(outputs, targets)
 
@@ -146,11 +116,4 @@ def test(
         test_acc = np.mean(test_acc)
         print(f'Test Accuracy: {test_acc:.3f}')
 
-    combined = list(data_creator.combine(outputs[0], targets[0]))
-    if sort_output_by_confidence:
-        combined.sort(key=lambda t: -t[1])  # sort by output confidence
-    print(
-        f'{"id":15s} output   target')
-    for id, output, target in combined:
-        print(
-            f'{id:15s} {output:.2f}     {"X" if target else " "}')
+    plot_test_output(outputs[0], targets[0])

@@ -3,3 +3,5 @@ graphviz
 requests
 tqdm
 torch
+numpy
+matplotlib
