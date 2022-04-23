@@ -30,7 +30,8 @@ class DatasetCreator:
         return [_one_hot_encoding(self.feature_list, features) for features in self._subjects]
 
     def combine(self, outputs: list[int], targets: list[int]):
-        return zip(self.feature_list, outputs, targets, strict=True)
+        assert len(self.feature_list) == len(outputs) == len(targets)
+        return zip(self.feature_list, outputs, targets)
 
 
 class HPODatasetCreator(DatasetCreator):

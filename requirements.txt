@@ -2,4 +2,4 @@ pandas
 graphviz
 requests
 tqdm
-pytorch
+torch
