@@ -40,4 +40,18 @@ def plot_test_output(output, target):
     ax.matshow(data, aspect='auto', norm=None)
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
+    ax.text(-6, 0, 'outputs', size=30,
+            ha='center', va='center',
+            bbox=dict(boxstyle='round',
+                      lw=0.0,
+                      fc=utils.BASIC_GREY,
+                      )
+            )
+    ax.text(-6, 1, 'targets', size=30,
+            ha='center', va='center',
+            bbox=dict(boxstyle='round',
+                      lw=0.0,
+                      fc=utils.BASIC_GREY,
+                      )
+            )
     plt.show()

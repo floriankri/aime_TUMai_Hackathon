@@ -93,7 +93,9 @@ def test(
     data_creator: DatasetCreator,
     print_real_effect: Optional[Callable] = None,
     calc_accuracy: Optional[Callable] = None,
-    sort_output_by_confidence: bool = False
+    sort_output_by_confidence: bool = False,
+    plot_outputs: bool = False,
+    plot_decide: bool = False,
 ):
     _, _, test_loader = dataset_split
 
@@ -108,12 +110,17 @@ def test(
 
         if calc_accuracy:
             test_acc.append(calc_accuracy(outputs, targets))
-        if print_real_effect:
-            print_real_effect(outputs, targets)
 
     if calc_accuracy:
         test_acc = np.mean(test_acc)
-        print(f'Test Accuracy: {test_acc:.3f}')
+        print(f'Test Accuracy: {test_acc:.3f}\n')
 
-    clamped = np.clip(outputs[0], 0, 1)
-    plot_test_output(clamped, targets[0])
+    if print_real_effect:
+        print_real_effect(outputs, targets)
+
+    if plot_outputs:
+        if plot_decide:
+            clamped = [int(e > 0.5) for e in outputs[0]]
+        else:
+            clamped = np.clip(outputs[0], 0, 1)
+        plot_test_output(clamped, targets[0])
