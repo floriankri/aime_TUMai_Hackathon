@@ -35,7 +35,6 @@ def training(
     loss_func: nn.Module,
     optimizer: torch.optim.Optimizer,
     num_epochs: int,
-    real_effect: Optional[Callable] = None,
     calc_accuracy: Optional[Callable] = None,
 ):
     train_loader, val_loader, _ = dataset_split
@@ -92,7 +91,7 @@ def test(
     device: torch.device,
     dataset_split: tuple,
     data_creator: DatasetCreator,
-    real_effect: Optional[Callable] = None,
+    print_real_effect: Optional[Callable] = None,
     calc_accuracy: Optional[Callable] = None,
     sort_output_by_confidence: bool = False
 ):
@@ -109,11 +108,12 @@ def test(
 
         if calc_accuracy:
             test_acc.append(calc_accuracy(outputs, targets))
-        if real_effect:
-            real_effect(outputs, targets)
+        if print_real_effect:
+            print_real_effect(outputs, targets)
 
     if calc_accuracy:
         test_acc = np.mean(test_acc)
         print(f'Test Accuracy: {test_acc:.3f}')
 
-    plot_test_output(outputs[0], targets[0])
+    clamped = np.clip(outputs[0], 0, 1)
+    plot_test_output(clamped, targets[0])
