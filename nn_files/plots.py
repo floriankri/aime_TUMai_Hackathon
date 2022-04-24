@@ -12,6 +12,7 @@ def plot_loss_accuracy(
     train_loss: list[float], val_loss: list[float],
     train_acc: list[float], val_acc: list[float],
 ):
+    'Plots the accuracy and loss in two graphs side by side'
     if len(train_acc) > 0:
         _, (ax1, ax2) = plt.subplots(1, 2)
     else:
@@ -35,6 +36,7 @@ def plot_loss_accuracy(
 
 
 def plot_test_output(output, target):
+    '''plots the output vector and target vector one above the other'''
     data = [output, target]
     ax = plt.subplot()
     ax.matshow(data, aspect='auto', norm=None)

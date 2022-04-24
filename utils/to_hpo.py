@@ -26,6 +26,14 @@ def add_hpo_information(
     anno_path: str,
     labevents_hpo_path: str,
 ):
+    '''
+    Inserts the Human Phenotype Ontology features in the labevents from the MIMIC III dataset.
+
+    - `labitems_path` is the path to the `D_LABITEMS.csv` file from the MIMIC dataset
+    - `labevents_path` is the path to the `LABEVENTS.csv` file from the MIMIC dataset
+    - `anno_path` is the path to the `loinc2hpo-annotations.tsv` file
+    - `labevents_hpo_path` is the path where the labevents with hpo_features will be saved
+    '''
     # variables to keep track of errors
     missing_annotation: set[str] = set()
     missing_loinc: set[str] = set()
@@ -58,7 +66,7 @@ def add_hpo_information(
     selected_hpo_features: list[str] = []
     not_selected_hpo_features: list[str] = []
     unknown_hpo_features: list[str] = []
-    for _, line in tqdm.tqdm(labevents_df.iterrows(), total=76074):
+    for _, line in tqdm.tqdm(labevents_df.iterrows(), total=len(labevents_df.index)):
         # info["lines"] += 1
         selected: list[str] = []
         not_selected: list[str] = []
@@ -106,7 +114,8 @@ def add_hpo_information(
 
         selected_hpo_features.append(";".join(selected))
         not_selected_hpo_features.append(";".join(not_selected))
-        unknown = [e for e in unassigned.values() if (e not in selected) and (e not in not_selected)]
+        unknown = [e for e in unassigned.values() if (
+            e not in selected) and (e not in not_selected)]
         unknown_hpo_features.append(";".join(unknown))
 
     # put new columns into dataframe

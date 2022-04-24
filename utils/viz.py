@@ -6,7 +6,7 @@ from .design import *
 
 def _graph() -> Digraph:
     return Digraph(
-        graph_attr={'fontname': FONT, },
+        graph_attr={'fontname': FONT},
         node_attr={'fontname': FONT, 'shape': 'box',
                    'style': 'filled,rounded',
                    'penwidth': '0.0'},

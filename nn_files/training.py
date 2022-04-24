@@ -6,12 +6,16 @@ from nn_data.creator import DatasetCreator
 from .plots import plot_loss_accuracy, plot_test_output
 import tqdm
 
+split_dataset_type = tuple[torch.utils.data.DataLoader,
+                           torch.utils.data.DataLoader, torch.utils.data.DataLoader]
+
 
 def split_dataset(
     batch_size: int,
     dataset: torch.utils.data.dataset.TensorDataset,
-):
-    # split dataset into training, validation and test
+) -> split_dataset_type:
+    '''split dataset into training, validation and test
+    with the ratios (0.7, 0.2, 0.1)'''
     train_size = int(len(dataset)*0.7)
     val_size = int(len(dataset)*0.2)
     test_size = len(dataset) - (train_size + val_size)
@@ -31,12 +35,18 @@ def split_dataset(
 def training(
     model: nn.Module,
     device: torch.device,
-    dataset_split: tuple,
+    dataset_split: split_dataset_type,
     loss_func: nn.Module,
     optimizer: torch.optim.Optimizer,
     num_epochs: int,
     calc_accuracy: Optional[Callable] = None,
 ):
+    '''trains the `model` using the training and validation dataset from `dataset_split`.
+
+    After training is done the loss will be shown in a plot.
+
+    if `calc_accuracy` function is not `None` the accuracy will be calculated and plotted as well.
+    '''
     train_loader, val_loader, _ = dataset_split
 
     val_loss_history = []
@@ -89,7 +99,7 @@ def training(
 def test(
     model: nn.Module,
     device: torch.device,
-    dataset_split: tuple,
+    dataset_split: split_dataset_type,
     data_creator: DatasetCreator,
     print_real_effect: Optional[Callable] = None,
     calc_accuracy: Optional[Callable] = None,
@@ -97,6 +107,10 @@ def test(
     plot_outputs: bool = False,
     plot_decide: bool = False,
 ):
+    '''tests the `model` using the test data from `dataset_split`.
+
+    if `plot_outputs` is `True` a single example from the test run will be plotted.
+    '''
     _, _, test_loader = dataset_split
 
     outputs, targets = [], []
